@@ -6,6 +6,7 @@ import re
 import pprint
 from sys import *
 import webbrowser
+from decimal import *
 
 mudlet = MudletObject(HOST_HASH)
 
@@ -391,6 +392,7 @@ def display(obj):
 
 
 def cecho(text,console='main',insert=False):
+    resetFormat(console)
     text=re.split("(<.*?>)",text)
     for line in text:
         if re.match("<(.*?)>",line):
@@ -408,7 +410,7 @@ def cecho(text,console='main',insert=False):
 		echo(line,console) 
 	    else: 
 		insertText(line,console)
-    resetFormat()
+    resetFormat(console)
 
 def decho(text,console='main',insert=False):
     text=re.split("(<.*?>)",text)
@@ -538,17 +540,17 @@ def feedTriggers(txt):
 def setBold(doBold,console='main'):
     """console=The console you want to set, doBold=True/False for setting
        bold on or off."""
-    mudlet.setBold(console,active)
+    mudlet.setBold(console,doBold)
 
 def setUnderline(doUnderline,console='main'):
     """console=The console you want to set, doUnderline=True/False for setting
        Underline on or off."""
-    mudlet.setUnderline(console,active)
+    mudlet.setUnderline(console,doUnderline)
 
 def setItalics(doItalics,console='main'):
     """console=The console you want to set, doItalics=True/False for setting
        Italics on or off."""
-    mudlet.setItalics(console,active)
+    mudlet.setItalics(console,doItalics)
 
 def moveCursor(xpos, ypos, console='main'):
     mudlet.moveCursor(xpos,ypos,console)
@@ -921,7 +923,7 @@ def setGaugeText(gaugeName, gaugeText="", color1="", color2="", color3=""):
                         red, green, blue = getRGB(color1)
                 else:
                         red, green, blue = color1, color2, color3
-        l_EchoString = "<font color=#"+str(RGB2Hex(red,green,blue))+">"+l_labelText+"</font>"
+        l_EchoString = '<font color=#"'+str(RGB2Hex(red,green,blue))+'">'+l_labelText+"</font>"
         echo(l_EchoString,gaugeName)
         echo(l_EchoString,gaugeName+"_back")
         gaugesTable[gaugeName]["text"] = l_EchoString
@@ -936,14 +938,14 @@ def setLabelStyleSheet(label,sheet):
 def setGauge(name,value,maxValue,txt=""):
         #assert(gaugesTable[gaugeName], "setGauge: no such gauge exists.")
         #assert(currentValue and maxValue, "setGauge: need to have both current and max values.")
-
-        resizeWindow(name, gaugesTable[name].width/100*((100/maxValue)*value), gaugesTable[name].height)
-
+        x=gaugesTable[name]['width']/100*(100/round(Decimal(maxValue)))*value
+        y=gaugesTable[name]['height']
+        resizeWindow(name, x, y)
         # if we wanted to change the text, we do it
-        if gaugeText != "" :
-                echo(name+"_back", txt)
-                echo(name, txt)
-                gaugesTable[name].text = txt
+        if txt != "" :
+                echo(txt,name+"_back")
+                echo(txt,name)
+                gaugesTable[name]['text'] = txt
     
 
 execfile('PythonLocal.py')
